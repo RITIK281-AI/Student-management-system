@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('students', function (Blueprint $table) {
@@ -17,13 +14,12 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
             $table->integer('marks')->default(0);
+            $table->string('grade')->default('N/A'); // A, B, C, Fail
             $table->timestamps();
+            $table->softDeletes(); // For soft delete functionality
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('students');

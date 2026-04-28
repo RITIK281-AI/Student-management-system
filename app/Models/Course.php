@@ -10,21 +10,27 @@ class Course extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'course_name',
         'description',
+        'duration',
     ];
 
-    /**
-     * Get the students for the course.
-     */
+    // Relationship with students
     public function students(): HasMany
     {
         return $this->hasMany(Student::class);
+    }
+
+    // Get count of students in this course
+    public function getStudentCountAttribute()
+    {
+        return $this->students()->count();
+    }
+
+    // Get average marks for this course
+    public function getAverageMarksAttribute()
+    {
+        return $this->students()->avg('marks') ?? 0;
     }
 }
