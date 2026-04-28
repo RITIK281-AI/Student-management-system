@@ -4,18 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use App\Models\Course;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
     /**
-     * Display a listing of students with search and filter
+     * Display list of students with search and filter
      */
     public function index(Request $request)
     {
         $query = Student::with('course');
 
-        // Search by student name
+        // Search by name
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
@@ -25,7 +26,19 @@ class StudentController extends Controller
             $query->where('course_id', $request->course_id);
         }
 
-        // Paginate results (10 per page)
+        // Filter by grade
+        if ($request->filled('grade')) {
+            $query->where('grade', $request->grade);
+        }
+
+        // Filter by marks range
+        if ($request->filled('marks_min')) {
+            $query->where('marks', '>=', $request->marks_min);
+        }
+        if ($request->filled('marks_max')) {
+            $query->where('marks', '<=', $request->marks_max);
+        }
+
         $students = $query->paginate(10);
         $courses = Course::all();
 
@@ -33,7 +46,7 @@ class StudentController extends Controller
     }
 
     /**
-     * Show the form for creating a new student (Staff only)
+     * Show create student form (Staff only)
      */
     public function create()
     {
@@ -42,11 +55,10 @@ class StudentController extends Controller
     }
 
     /**
-     * Store a newly created student in database (Staff only)
+     * Store new student (Staff only)
      */
     public function store(Request $request)
     {
-        // Validate input
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:students',
@@ -54,15 +66,23 @@ class StudentController extends Controller
             'marks' => 'required|integer|min:0|max:100',
         ]);
 
-        // Create student
-        Student::create($validated);
+        $student = Student::create($validated);
+
+        // Log activity
+        ActivityLog::logActivity(
+            auth()->id(),
+            'created_student',
+            "Created student: {$student->name}",
+            'Student',
+            $student->id
+        );
 
         return redirect()->route('students.index')
             ->with('success', 'Student added successfully!');
     }
 
     /**
-     * Show the form for editing a student (Staff only)
+     * Show edit student form (Staff only)
      */
     public function edit(Student $student)
     {
@@ -71,11 +91,10 @@ class StudentController extends Controller
     }
 
     /**
-     * Update the specified student in database (Staff only)
+     * Update student (Staff only)
      */
     public function update(Request $request, Student $student)
     {
-        // Validate input
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:students,email,' . $student->id,
@@ -83,57 +102,90 @@ class StudentController extends Controller
             'marks' => 'required|integer|min:0|max:100',
         ]);
 
-        // Update student
         $student->update($validated);
+
+        // Log activity
+        ActivityLog::logActivity(
+            auth()->id(),
+            'updated_student',
+            "Updated student: {$student->name}",
+            'Student',
+            $student->id
+        );
 
         return redirect()->route('students.index')
             ->with('success', 'Student updated successfully!');
     }
 
     /**
-     * Delete the specified student (Staff only)
+     * Delete student (Staff only)
      */
     public function destroy(Student $student)
     {
+        $studentName = $student->name;
         $student->delete();
+
+        // Log activity
+        ActivityLog::logActivity(
+            auth()->id(),
+            'deleted_student',
+            "Deleted student: {$studentName}",
+            'Student',
+            $student->id
+        );
 
         return redirect()->route('students.index')
             ->with('success', 'Student deleted successfully!');
     }
 
     /**
-     * Show staff dashboard
+     * Show student profile page
      */
-    public function staffDashboard()
+    public function show(Student $student)
     {
-        $totalStudents = Student::count();
-        $totalCourses = Course::count();
-        $recentStudents = Student::with('course')->latest()->take(5)->get();
-
-        return view('dashboards.staff', compact('totalStudents', 'totalCourses', 'recentStudents'));
+        return view('students.show', compact('student'));
     }
 
     /**
-     * Show admin dashboard
+     * Restore soft-deleted student (Staff only)
      */
-    public function adminDashboard()
+    public function restore($id)
     {
-        $totalStudents = Student::count();
-        $totalCourses = Course::count();
-        $students = Student::with('course')->paginate(10);
+        $student = Student::withTrashed()->findOrFail($id);
+        $student->restore();
 
-        return view('dashboards.admin', compact('totalStudents', 'totalCourses', 'students'));
+        // Log activity
+        ActivityLog::logActivity(
+            auth()->id(),
+            'restored_student',
+            "Restored student: {$student->name}",
+            'Student',
+            $student->id
+        );
+
+        return redirect()->route('students.index')
+            ->with('success', 'Student restored successfully!');
     }
 
     /**
-     * Show CEO dashboard
+     * Permanently delete student (Staff only)
      */
-    public function ceoDashboard()
+    public function forceDelete($id)
     {
-        $totalStudents = Student::count();
-        $totalCourses = Course::count();
-        $students = Student::with('course')->paginate(10);
+        $student = Student::withTrashed()->findOrFail($id);
+        $studentName = $student->name;
+        $student->forceDelete();
 
-        return view('dashboards.ceo', compact('totalStudents', 'totalCourses', 'students'));
+        // Log activity
+        ActivityLog::logActivity(
+            auth()->id(),
+            'permanently_deleted_student',
+            "Permanently deleted student: {$studentName}",
+            'Student',
+            $id
+        );
+
+        return redirect()->route('students.index')
+            ->with('success', 'Student permanently deleted!');
     }
 }
