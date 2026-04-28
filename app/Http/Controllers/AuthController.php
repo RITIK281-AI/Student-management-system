@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     /**
-     * Show the login form
+     * Show login form
      */
     public function showLogin()
     {
@@ -22,26 +22,23 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        // Validate input
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:6',
         ]);
 
-        // Attempt to authenticate
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             return redirect()->route('dashboard');
         }
 
-        // Authentication failed
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+            'email' => 'Invalid credentials provided.',
         ])->onlyInput('email');
     }
 
     /**
-     * Show the registration form
+     * Show registration form
      */
     public function showRegister()
     {
@@ -49,18 +46,16 @@ class AuthController extends Controller
     }
 
     /**
-     * Handle registration (only for staff role)
+     * Handle registration (Staff only)
      */
     public function register(Request $request)
     {
-        // Validate input
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed',
         ]);
 
-        // Create new user with staff role
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -68,7 +63,6 @@ class AuthController extends Controller
             'role' => 'staff', // Only staff can register
         ]);
 
-        // Log the user in
         Auth::login($user);
 
         return redirect()->route('dashboard')->with('success', 'Registration successful!');
@@ -87,7 +81,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Show dashboard based on user role
+     * Redirect to role-specific dashboard
      */
     public function dashboard()
     {

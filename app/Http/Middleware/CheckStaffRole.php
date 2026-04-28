@@ -10,15 +10,12 @@ class CheckStaffRole
 {
     /**
      * Handle an incoming request.
-     * Only staff can perform CRUD operations on students.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Only staff can perform CRUD operations.
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check if user is authenticated and is staff
         if (!auth()->check() || auth()->user()->role !== 'staff') {
-            return redirect()->route('dashboard')->with('error', 'Unauthorized access');
+            return redirect()->route('dashboard')->with('error', 'Only staff can perform this action');
         }
 
         return $next($request);
