@@ -13,7 +13,6 @@
             @csrf
             @method('PUT')
 
-            <!-- Name Field -->
             <div class="form-group">
                 <label for="name">Student Name *</label>
                 <input 
@@ -29,7 +28,6 @@
                 @enderror
             </div>
 
-            <!-- Email Field -->
             <div class="form-group">
                 <label for="email">Email Address *</label>
                 <input 
@@ -45,7 +43,6 @@
                 @enderror
             </div>
 
-            <!-- Course Selection -->
             <div class="form-group">
                 <label for="course_id">Course *</label>
                 <select id="course_id" name="course_id" required>
@@ -61,7 +58,6 @@
                 @enderror
             </div>
 
-            <!-- Marks Field -->
             <div class="form-group">
                 <label for="marks">Marks (0-100) *</label>
                 <input 
@@ -79,7 +75,6 @@
                 @enderror
             </div>
 
-            <!-- Form Actions -->
             <div class="btn-group">
                 <button type="submit" class="btn btn-success">✅ Update Student</button>
                 <a href="{{ route('students.index') }}" class="btn btn-secondary">❌ Cancel</a>
@@ -87,17 +82,24 @@
         </form>
     </div>
 
-    <!-- Student Info -->
     <div class="card" style="max-width: 600px; background-color: #f9f9f9;">
         <div class="card-title" style="color: #2c3e50;">📋 Current Information</div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div>
+                <p style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 0.25rem;">Current Grade</p>
+                <p style="color: #2c3e50; font-weight: 600;">{{ $student->grade }}</p>
+            </div>
+            <div>
+                <p style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 0.25rem;">Status</p>
+                <p style="color: #2c3e50; font-weight: 600;">{{ $student->marks >= 40 ? 'Pass' : 'Fail' }}</p>
+            </div>
+            <div>
                 <p style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 0.25rem;">Created</p>
-                <p style="color: #2c3e50; font-weight: 600;">{{ $student->created_at->format('M d, Y H:i') }}</p>
+                <p style="color: #2c3e50; font-weight: 600;">{{ $student->created_at->format('M d, Y') }}</p>
             </div>
             <div>
                 <p style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 0.25rem;">Last Updated</p>
-                <p style="color: #2c3e50; font-weight: 600;">{{ $student->updated_at->format('M d, Y H:i') }}</p>
+                <p style="color: #2c3e50; font-weight: 600;">{{ $student->updated_at->format('M d, Y') }}</p>
             </div>
         </div>
     </div>

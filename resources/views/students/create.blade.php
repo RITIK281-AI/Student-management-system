@@ -12,7 +12,6 @@
         <form action="{{ route('students.store') }}" method="POST" id="studentForm">
             @csrf
 
-            <!-- Name Field -->
             <div class="form-group">
                 <label for="name">Student Name *</label>
                 <input 
@@ -28,7 +27,6 @@
                 @enderror
             </div>
 
-            <!-- Email Field -->
             <div class="form-group">
                 <label for="email">Email Address *</label>
                 <input 
@@ -44,7 +42,6 @@
                 @enderror
             </div>
 
-            <!-- Course Selection -->
             <div class="form-group">
                 <label for="course_id">Course *</label>
                 <select id="course_id" name="course_id" required>
@@ -60,7 +57,6 @@
                 @enderror
             </div>
 
-            <!-- Marks Field -->
             <div class="form-group">
                 <label for="marks">Marks (0-100) *</label>
                 <input 
@@ -78,7 +74,6 @@
                 @enderror
             </div>
 
-            <!-- Form Actions -->
             <div class="btn-group">
                 <button type="submit" class="btn btn-success">✅ Add Student</button>
                 <a href="{{ route('students.index') }}" class="btn btn-secondary">❌ Cancel</a>
@@ -86,14 +81,13 @@
         </form>
     </div>
 
-    <!-- Help Section -->
     <div class="card" style="max-width: 600px; background-color: #f0f8ff; border-left: 4px solid #3498db;">
         <div class="card-title" style="color: #2c3e50;">💡 Tips</div>
         <ul style="color: #555; margin-left: 1.5rem;">
             <li>All fields are required</li>
             <li>Email must be unique for each student</li>
             <li>Marks should be between 0 and 100</li>
-            <li>Select a course from the dropdown</li>
+            <li>Grade will be calculated automatically</li>
         </ul>
     </div>
 @endsection
