@@ -41,35 +41,27 @@
             font-size: 0.9rem;
         }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #2c3e50;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
+        .demo-info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 1rem;
             border-radius: 4px;
-            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
         }
 
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #7f8c8d;
+            font-size: 0.9rem;
         }
 
-        .error-message {
-            color: #e74c3c;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
+        .login-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
         }
 
         .btn-login {
@@ -89,38 +81,6 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-
-        .login-footer {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
-
-        .login-footer a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .login-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .demo-info {
-            background-color: #d1ecf1;
-            border: 1px solid #bee5eb;
-            color: #0c5460;
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-        }
-
-        .demo-info strong {
-            display: block;
-            margin-bottom: 0.5rem;
-        }
     </style>
 @endsection
 
@@ -131,11 +91,11 @@
             <p>Student Management System</p>
         </div>
 
-        <!-- Demo Credentials Info -->
         <div class="demo-info">
-            <strong>Demo Credentials:</strong>
+            <strong>Demo Credentials:</strong><br>
             Admin: admin@example.com / password<br>
             CEO: ceo@example.com / password<br>
+            Staff: staff@example.com / password<br>
             Or register as Staff
         </div>
 
