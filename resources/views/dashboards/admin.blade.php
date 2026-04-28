@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Admin Dashboard - Student Management System')
+@section('title', 'Admin Dashboard')
 
 @section('content')
     <div style="margin-bottom: 2rem;">
@@ -9,88 +9,103 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="stats-grid">
-        <div class="stat-card blue">
-            <div class="stat-number">{{ $totalStudents }}</div>
-            <div class="stat-label">Total Students</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;">{{ $totalStudents }}</div>
+            <div style="font-size: 1rem; opacity: 0.9;">Total Students</div>
         </div>
-        <div class="stat-card green">
-            <div class="stat-number">{{ $totalCourses }}</div>
-            <div class="stat-label">Total Courses</div>
+        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;">{{ $totalCourses }}</div>
+            <div style="font-size: 1rem; opacity: 0.9;">Total Courses</div>
         </div>
-        <div class="stat-card orange">
-            <div class="stat-number">{{ auth()->user()->name }}</div>
-            <div class="stat-label">Logged in as Admin</div>
+        <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 2rem; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;">{{ round($averageMarks, 2) }}</div>
+            <div style="font-size: 1rem; opacity: 0.9;">Average Marks</div>
         </div>
     </div>
 
     <!-- Info Box -->
     <div class="card" style="background-color: #d1ecf1; border-left: 4px solid #0c5460;">
         <p style="color: #0c5460; margin: 0;">
-            <strong>ℹ️ Admin Access:</strong> You have read-only access to all student and course data. 
-            To make changes, contact a Staff member.
+            <strong>ℹ️ Admin Access:</strong> You have read-only access to all student and course data. To make changes, contact a Staff member.
         </p>
     </div>
 
-    <!-- All Students -->
+    <!-- Grade Distribution -->
     <div class="card">
-        <div class="card-title">📋 All Students</div>
-        
-        @if($students->count() > 0)
+        <div class="card-title">📈 Grade Distribution</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Grade</th>
+                    <th>Count</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php $total = $gradeDistribution->sum('count'); @endphp
+                @foreach($gradeDistribution as $grade)
+                    <tr>
+                        <td>{{ $grade->grade }}</td>
+                        <td>{{ $grade->count }}</td>
+                        <td>{{ round(($grade->count / $total) * 100, 2) }}%</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Students Per Course -->
+    <div class="card">
+        <div class="card-title">📊 Students Per Course</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Course Name</th>
+                    <th>Number of Students</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($studentsPerCourse as $course)
+                    <tr>
+                        <td>{{ $course->course_name }}</td>
+                        <td>
+                            <span style="background-color: #ecf0f1; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600;">
+                                {{ $course->students_count }}
+                            </span>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="card">
+        <div class="card-title">📝 Recent Activities</div>
+        @if($recentActivities->count() > 0)
             <table>
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Course</th>
-                        <th>Marks</th>
-                        <th>Enrolled</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Description</th>
+                        <th>Time</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($students as $student)
+                    @foreach($recentActivities as $activity)
                         <tr>
-                            <td>{{ $student->name }}</td>
-                            <td>{{ $student->email }}</td>
-                            <td>{{ $student->course->course_name }}</td>
-                            <td>{{ $student->marks }}/100</td>
-                            <td>{{ $student->created_at->format('M d, Y') }}</td>
+                            <td>{{ $activity->user->name }}</td>
+                            <td><span style="background-color: #ecf0f1; padding: 0.25rem 0.75rem; border-radius: 4px;">{{ $activity->action }}</span></td>
+                            <td>{{ $activity->description }}</td>
+                            <td>{{ $activity->created_at->diffForHumans() }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
-
-            <!-- Pagination -->
-            <div class="pagination">
-                {{ $students->links() }}
-            </div>
         @else
-            <p style="color: #7f8c8d; text-align: center; padding: 2rem;">No students found.</p>
+            <p style="color: #7f8c8d; text-align: center; padding: 2rem;">No recent activities</p>
         @endif
-    </div>
-
-    <!-- Permissions Overview -->
-    <div class="card">
-        <div class="card-title">🔒 Your Permissions</div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-            <div style="padding: 1rem; background-color: #d4edda; border-radius: 4px; border-left: 4px solid #27ae60;">
-                <h3 style="color: #155724; margin-bottom: 0.5rem;">✅ Allowed</h3>
-                <ul style="color: #155724; font-size: 0.9rem; margin: 0; padding-left: 1.5rem;">
-                    <li>View all students</li>
-                    <li>View all courses</li>
-                    <li>Search students</li>
-                    <li>Filter by course</li>
-                </ul>
-            </div>
-            <div style="padding: 1rem; background-color: #f8d7da; border-radius: 4px; border-left: 4px solid #e74c3c;">
-                <h3 style="color: #721c24; margin-bottom: 0.5rem;">❌ Not Allowed</h3>
-                <ul style="color: #721c24; font-size: 0.9rem; margin: 0; padding-left: 1.5rem;">
-                    <li>Add students</li>
-                    <li>Edit student data</li>
-                    <li>Delete students</li>
-                    <li>Modify courses</li>
-                </ul>
-            </div>
-        </div>
     </div>
 @endsection

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Staff Dashboard - Student Management System')
+@section('title', 'Staff Dashboard')
 
 @section('content')
     <div style="margin-bottom: 2rem;">
@@ -9,18 +9,18 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="stats-grid">
-        <div class="stat-card blue">
-            <div class="stat-number">{{ $totalStudents }}</div>
-            <div class="stat-label">Total Students</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;">{{ $totalStudents }}</div>
+            <div style="font-size: 1rem; opacity: 0.9;">Total Students</div>
         </div>
-        <div class="stat-card green">
-            <div class="stat-number">{{ $totalCourses }}</div>
-            <div class="stat-label">Total Courses</div>
+        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;">{{ $totalCourses }}</div>
+            <div style="font-size: 1rem; opacity: 0.9;">Total Courses</div>
         </div>
-        <div class="stat-card orange">
-            <div class="stat-number">{{ auth()->user()->name }}</div>
-            <div class="stat-label">Logged in as Staff</div>
+        <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 2rem; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;">{{ round($averageMarks, 2) }}</div>
+            <div style="font-size: 1rem; opacity: 0.9;">Average Marks</div>
         </div>
     </div>
 
@@ -29,68 +29,87 @@
         <div class="card-title">🚀 Quick Actions</div>
         <div class="btn-group">
             <a href="{{ route('students.create') }}" class="btn btn-success">+ Add New Student</a>
+            <a href="{{ route('courses.create') }}" class="btn btn-success">+ Add New Course</a>
             <a href="{{ route('students.index') }}" class="btn btn-primary">View All Students</a>
+            <a href="{{ route('courses.index') }}" class="btn btn-primary">View All Courses</a>
         </div>
     </div>
 
-    <!-- Recent Students -->
+    <!-- Students Per Course -->
     <div class="card">
-        <div class="card-title">📋 Recently Added Students</div>
-        @if($recentStudents->count() > 0)
+        <div class="card-title">📊 Students Per Course</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Course Name</th>
+                    <th>Number of Students</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($studentsPerCourse as $course)
+                    <tr>
+                        <td>{{ $course->course_name }}</td>
+                        <td>
+                            <span style="background-color: #ecf0f1; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600;">
+                                {{ $course->students_count }}
+                            </span>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Grade Distribution -->
+    <div class="card">
+        <div class="card-title">📈 Grade Distribution</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Grade</th>
+                    <th>Count</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php $total = $gradeDistribution->sum('count'); @endphp
+                @foreach($gradeDistribution as $grade)
+                    <tr>
+                        <td>{{ $grade->grade }}</td>
+                        <td>{{ $grade->count }}</td>
+                        <td>{{ round(($grade->count / $total) * 100, 2) }}%</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="card">
+        <div class="card-title">📝 Recent Activities</div>
+        @if($recentActivities->count() > 0)
             <table>
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Course</th>
-                        <th>Marks</th>
-                        <th>Added</th>
-                        <th>Actions</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Description</th>
+                        <th>Time</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($recentStudents as $student)
+                    @foreach($recentActivities as $activity)
                         <tr>
-                            <td>{{ $student->name }}</td>
-                            <td>{{ $student->email }}</td>
-                            <td>{{ $student->course->course_name }}</td>
-                            <td>{{ $student->marks }}/100</td>
-                            <td>{{ $student->created_at->format('M d, Y') }}</td>
-                            <td>
-                                <div class="btn-group" style="gap: 0.25rem;">
-                                    <a href="{{ route('students.edit', $student) }}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Edit</a>
-                                    <form action="{{ route('students.destroy', $student) }}" method="POST" style="display: inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="confirmDelete(event)">Delete</button>
-                                    </form>
-                                </div>
-                            </td>
+                            <td>{{ $activity->user->name }}</td>
+                            <td><span style="background-color: #ecf0f1; padding: 0.25rem 0.75rem; border-radius: 4px;">{{ $activity->action }}</span></td>
+                            <td>{{ $activity->description }}</td>
+                            <td>{{ $activity->created_at->diffForHumans() }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         @else
-            <p style="color: #7f8c8d; text-align: center; padding: 2rem;">No students added yet. <a href="{{ route('students.create') }}">Add your first student</a></p>
+            <p style="color: #7f8c8d; text-align: center; padding: 2rem;">No recent activities</p>
         @endif
-    </div>
-
-    <!-- Features Overview -->
-    <div class="card">
-        <div class="card-title">✨ Your Capabilities</div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-            <div style="padding: 1rem; background-color: #f9f9f9; border-radius: 4px; border-left: 4px solid #3498db;">
-                <h3 style="color: #2c3e50; margin-bottom: 0.5rem;">📝 Full CRUD Access</h3>
-                <p style="color: #7f8c8d; font-size: 0.9rem;">Create, read, update, and delete student records</p>
-            </div>
-            <div style="padding: 1rem; background-color: #f9f9f9; border-radius: 4px; border-left: 4px solid #27ae60;">
-                <h3 style="color: #2c3e50; margin-bottom: 0.5rem;">🎓 Course Assignment</h3>
-                <p style="color: #7f8c8d; font-size: 0.9rem;">Assign and manage student courses</p>
-            </div>
-            <div style="padding: 1rem; background-color: #f9f9f9; border-radius: 4px; border-left: 4px solid #e74c3c;">
-                <h3 style="color: #2c3e50; margin-bottom: 0.5rem;">📊 Marks Management</h3>
-                <p style="color: #7f8c8d; font-size: 0.9rem;">Record and update student marks</p>
-            </div>
-        </div>
     </div>
 @endsection
